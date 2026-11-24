@@ -1,0 +1,14 @@
+Missing or invalid counts: {'HighBP': 0, 'HighChol': 0, 'BMI': 0, 'Smoker': 0, 'Stroke': 0, 'HeartDiseaseorAttack': 0, 'PhysActivity': 0, 'GenHlth': 0, 'DiffWalk': 0, 'Age': 0, 'label': 0}
+Train class counts: {0: 22731, 1: 22887}
+Validation class counts: {0: 5500, 1: 5381}
+Test class counts: {0: 7115, 1: 7078}
+Logistic Regression validation F1: 0.7461
+Decision Tree validation F1: 0.7433
+Random Forest validation F1: 0.7535
+Selected by validation F1: Random Forest
+Logistic Regression test metrics: {'accuracy': 0.7431832593532023, 'precision': 0.7331884254856678, 'recall': 0.7625035320712066, 'f1': 0.7475586952004987, 'tn': 5151, 'fp': 1964, 'fn': 1681, 'tp': 5397}
+Decision Tree test metrics: {'accuracy': 0.738673994222504, 'precision': 0.7134710429603346, 'recall': 0.795422435716304, 'f1': 0.7522212572650143, 'tn': 4854, 'fp': 2261, 'fn': 1448, 'tp': 5630}
+Random Forest test metrics: {'accuracy': 0.7445924047065455, 'precision': 0.720244929200153, 'recall': 0.7976829612884996, 'f1': 0.7569886706442314, 'tn': 4922, 'fp': 2193, 'fn': 1432, 'tp': 5646}
+{'case_id': 'EXAMPLE_1', 'predicted_class': 0, 'positive_class_score': 0.06716}
+{'case_id': 'EXAMPLE_2', 'predicted_class': 1, 'positive_class_score': 0.848798}
+{'case_id': 'EXAMPLE_3', 'predicted_class': 1, 'positive_class_score': 0.612978}

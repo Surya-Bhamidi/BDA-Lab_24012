@@ -1,0 +1,13 @@
+student_id,name,department,semester,marks
+S001,Asha,CSE,5,92
+S002,Ravi,CSE,5,75
+S003,Meera,CSE,5,83
+S004,Ishaan,ECE,5,68
+S005,Neha,ECE,5,80
+S006,Kiran,ECE,5,74
+S007,Diya,Mechanical,5,77
+S008,Arjun,Mechanical,5,88
+S009,Vidya,Mechanical,5,69
+S010,Nikhil,AID,5,96
+S011,Sana,AID,5,89
+S012,Gautam,AID,5,71
