@@ -1,8 +1,14 @@
+Spark master: local[4]
+Department-count task distribution:
+  Before the shuffle: 4 tasks, one per input partition.
+  After the shuffle: 4 tasks, one per output partition.
+  On a cluster, the driver assigns these tasks to executors on worker nodes.
+  Executors fetch the shuffle data for their partitions, and collect returns the final counts to the driver.
 Jobs before action: 0
 RDD lineage for department counts:
-(4) ShuffledRDD[2] at reduceByKey at StudentPerformance.scala:28 []
- +-(4) MapPartitionsRDD[1] at map at StudentPerformance.scala:28 []
-    |  ParallelCollectionRDD[0] at parallelize at StudentPerformance.scala:26 []
+(4) ShuffledRDD[2] at reduceByKey at StudentPerformance.scala:36 []
+ +-(4) MapPartitionsRDD[1] at map at StudentPerformance.scala:36 []
+    |  ParallelCollectionRDD[0] at parallelize at StudentPerformance.scala:29 []
 Students per department:
 (AID,3)
 (CSE,3)
@@ -32,5 +38,10 @@ Student(S010,Nikhil,AID,5,96.0)
 Student(S011,Sana,AID,5,89.0)
 Average marks: 80.17
 Highest score: Student(S010,Nikhil,AID,5,96.0)
-Records per input partition: (0,3), (1,3), (2,3), (3,3)
+Observed input tasks from the partition inspection job:
+  Partition 0 ran on executor driver and processed 3 records.
+  Partition 1 ran on executor driver and processed 3 records.
+  Partition 2 ran on executor driver and processed 3 records.
+  Partition 3 ran on executor driver and processed 3 records.
+In local mode, Spark runs these partition tasks on threads in the driver process.
 Spark UI: http://127.0.0.1:4051

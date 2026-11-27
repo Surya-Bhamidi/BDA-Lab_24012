@@ -12,6 +12,8 @@ The [recorded output](evidence/output.txt) displays all records and the seven ma
 
 `map`, `filter`, and `reduceByKey` build new RDDs. Before calling `collect` on the department aggregation, the job group has zero jobs. After the action it has one. The other actions, including `stats` and `max`, likewise trigger execution and return results to the driver.
 
-The [Spark DAG](evidence/spark-dag.png) and the printed `toDebugString` show the parallelized collection, the mapping into key-value pairs, and the shuffle for `reduceByKey`. The driver schedules stages and assigns tasks for each partition. Tasks apply narrow operations within a partition, then the shuffle sends partial counts to the partitions responsible for each key. In this local run the four partitions have three records each and run on the driver's Spark threads. In cluster mode executors on worker nodes run those same partition tasks and fetch shuffle data over the network.
+The Scala program explains task distribution alongside the department aggregation. When `collect` triggers the job, Spark runs four tasks to map and partially combine counts, then shuffles those counts by department. Four more tasks merge the partial counts in the output partitions. The driver receives the final counts. The [Spark DAG](evidence/spark-dag.png) shows this stage boundary.
+
+A separate partition inspection job reports the executor ID and record count for each input partition. In the recorded `local[4]` run, all four partitions processed three records on executor `driver`, which runs tasks on local threads. In cluster mode, the cluster manager allocates executors on worker nodes. The driver schedules tasks on those executors, and the executors fetch shuffle blocks needed by their partitions. [Apache Spark cluster overview](https://spark.apache.org/docs/3.5.8/cluster-overview.html)
 
 See the [completed jobs](evidence/spark-jobs.png) for the actions run during the lab.
