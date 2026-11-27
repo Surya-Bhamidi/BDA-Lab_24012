@@ -5,7 +5,7 @@ The repository contains three independent labs for Big Data Analytics (23AID302)
 | Assignment | Implementation | Run evidence |
 | --- | --- | --- |
 | [1 · Student academic performance](assignment-1/README.md) | Scala and Spark RDDs | [Output](assignment-1/evidence/output.txt) · [RDD DAG](assignment-1/evidence/spark-dag.png) |
-| [2 · Sales and business intelligence](assignment-2/README.md) | PySpark DataFrames | [Output and plans](assignment-2/evidence/output.txt) · [SQL DAG](assignment-2/evidence/spark-sql-plan.png) |
+| [2 · Sales and business intelligence](assignment-2/README.md) | Scala DataFrames and RDDs | [Output and plans](assignment-2/evidence/output.txt) · [SQL DAG](assignment-2/evidence/spark-sql-plan.png) |
 | [3 · Diabetes classification](assignment-3/README.md) | PySpark MLlib | [Metrics](assignment-3/evidence/metrics.csv) · [Predictions](assignment-3/evidence/predictions.csv) |
 
 ## Run locally

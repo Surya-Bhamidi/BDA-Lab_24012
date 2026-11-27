@@ -1,4 +1,15 @@
-Typed sales schema
+CSV schema as loaded:
+root
+ |-- transaction_id: string (nullable = true)
+ |-- product_name: string (nullable = true)
+ |-- category: string (nullable = true)
+ |-- store_location: string (nullable = true)
+ |-- quantity_sold: string (nullable = true)
+ |-- unit_price: string (nullable = true)
+ |-- transaction_date: string (nullable = true)
+ |-- unit_cost: string (nullable = true)
+
+Typed sales schema:
 root
  |-- transaction_id: string (nullable = true)
  |-- product_name: string (nullable = true)
@@ -7,6 +18,7 @@ root
  |-- quantity: integer (nullable = true)
  |-- price: decimal(14,2) (nullable = true)
  |-- sales_date: date (nullable = true)
+ |-- cost: decimal(14,2) (nullable = true)
  |-- total_sales: decimal(25,2) (nullable = true)
 
 
@@ -44,47 +56,57 @@ Transaction totals (INR)
 +--------------+------------+-----------+--------------+--------+--------+----------+-----------+
 
 Category job count before action: 0
+Catalyst can prune unused columns and choose a physical plan from the schema and expressions.
+Partial aggregation reduces shuffle data before the Exchange repartitions by category.
+Final aggregation merges the partial results. AQE can coalesce shuffle partitions.
 == Parsed Logical Plan ==
 'Sort ['revenue DESC NULLS LAST, 'category ASC NULLS FIRST], true
-+- Aggregate [category#33], [category#33, sum(total_sales#71) AS revenue#177]
-   +- Project [transaction_id#31, product_name#32, category#33, store_location#34, quantity#46, price#47, sales_date#48, (cast(quantity#46 as decimal(10,0)) * price#47) AS total_sales#71]
-      +- Filter (invalid_columns#59 = )
-         +- Project [transaction_id#31, product_name#32, category#33, store_location#34, quantity_sold#35, unit_price#36, transaction_date#37, quantity#46, price#47, sales_date#48, concat_ws(, , CASE WHEN (isnull(transaction_id#31) OR (transaction_id#31 = )) THEN transaction_id END, CASE WHEN (isnull(product_name#32) OR (product_name#32 = )) THEN product_name END, CASE WHEN (isnull(category#33) OR (category#33 = )) THEN category END, CASE WHEN (isnull(store_location#34) OR (store_location#34 = )) THEN store_location END, CASE WHEN (isnull(quantity#46) OR (quantity#46 <= 0)) THEN quantity_sold END, CASE WHEN (isnull(price#47) OR (price#47 <= cast(cast(0 as decimal(1,0)) as decimal(14,2)))) THEN unit_price END, CASE WHEN isnull(sales_date#48) THEN transaction_date END) AS invalid_columns#59]
-            +- Project [transaction_id#31, product_name#32, category#33, store_location#34, quantity_sold#35, unit_price#36, transaction_date#37, try_cast(quantity_sold#35 as int) AS quantity#46, CASE WHEN RLIKE(unit_price#36, ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN try_cast(unit_price#36 as decimal(14,2)) END AS price#47, CASE WHEN RLIKE(transaction_date#37, ^[0-9]{4}-[0-9]{2}-[0-9]{2}$) THEN try_cast(transaction_date#37 as date) END AS sales_date#48]
-               +- Project [trim(transaction_id#17, None) AS transaction_id#31, trim(product_name#18, None) AS product_name#32, trim(category#19, None) AS category#33, trim(store_location#20, None) AS store_location#34, trim(quantity_sold#21, None) AS quantity_sold#35, trim(unit_price#22, None) AS unit_price#36, trim(transaction_date#23, None) AS transaction_date#37]
-                  +- Relation [transaction_id#17,product_name#18,category#19,store_location#20,quantity_sold#21,unit_price#22,transaction_date#23] csv
++- Aggregate [category#35], [category#35, sum(total_sales#110) AS revenue#226]
+   +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity#50, price#60, sales_date#71, cost#83, (cast(quantity#50 as decimal(10,0)) * price#60) AS total_sales#110]
+      +- Filter (invalid_columns#96 = )
+         +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity_sold#37, unit_price#38, transaction_date#39, unit_cost#40, quantity#50, price#60, sales_date#71, cost#83, concat_ws(, , CASE WHEN (isnull(transaction_id#33) OR (transaction_id#33 = )) THEN transaction_id END, CASE WHEN (isnull(product_name#34) OR (product_name#34 = )) THEN product_name END, CASE WHEN (isnull(category#35) OR (category#35 = )) THEN category END, CASE WHEN (isnull(store_location#36) OR (store_location#36 = )) THEN store_location END, CASE WHEN (isnull(quantity#50) OR (quantity#50 <= 0)) THEN quantity_sold END, CASE WHEN (isnull(price#60) OR (price#60 <= cast(cast(0 as decimal(1,0)) as decimal(14,2)))) THEN unit_price END, CASE WHEN isnull(sales_date#71) THEN transaction_date END) AS invalid_columns#96]
+            +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity_sold#37, unit_price#38, transaction_date#39, unit_cost#40, quantity#50, price#60, sales_date#71, CASE WHEN RLIKE(unit_cost#40, ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN try_cast(unit_cost#40 as decimal(14,2)) END AS cost#83]
+               +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity_sold#37, unit_price#38, transaction_date#39, unit_cost#40, quantity#50, price#60, CASE WHEN RLIKE(transaction_date#39, ^[0-9]{4}-[0-9]{2}-[0-9]{2}$) THEN try_cast(transaction_date#39 as date) END AS sales_date#71]
+                  +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity_sold#37, unit_price#38, transaction_date#39, unit_cost#40, quantity#50, CASE WHEN RLIKE(unit_price#38, ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN try_cast(unit_price#38 as decimal(14,2)) END AS price#60]
+                     +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity_sold#37, unit_price#38, transaction_date#39, unit_cost#40, try_cast(quantity_sold#37 as int) AS quantity#50]
+                        +- Project [trim(transaction_id#17, None) AS transaction_id#33, trim(product_name#18, None) AS product_name#34, trim(category#19, None) AS category#35, trim(store_location#20, None) AS store_location#36, trim(quantity_sold#21, None) AS quantity_sold#37, trim(unit_price#22, None) AS unit_price#38, trim(transaction_date#23, None) AS transaction_date#39, trim(unit_cost#24, None) AS unit_cost#40]
+                           +- Relation [transaction_id#17,product_name#18,category#19,store_location#20,quantity_sold#21,unit_price#22,transaction_date#23,unit_cost#24] csv
 
 == Analyzed Logical Plan ==
 category: string, revenue: decimal(35,2)
-Sort [revenue#177 DESC NULLS LAST, category#33 ASC NULLS FIRST], true
-+- Aggregate [category#33], [category#33, sum(total_sales#71) AS revenue#177]
-   +- Project [transaction_id#31, product_name#32, category#33, store_location#34, quantity#46, price#47, sales_date#48, (cast(quantity#46 as decimal(10,0)) * price#47) AS total_sales#71]
-      +- Filter (invalid_columns#59 = )
-         +- Project [transaction_id#31, product_name#32, category#33, store_location#34, quantity_sold#35, unit_price#36, transaction_date#37, quantity#46, price#47, sales_date#48, concat_ws(, , CASE WHEN (isnull(transaction_id#31) OR (transaction_id#31 = )) THEN transaction_id END, CASE WHEN (isnull(product_name#32) OR (product_name#32 = )) THEN product_name END, CASE WHEN (isnull(category#33) OR (category#33 = )) THEN category END, CASE WHEN (isnull(store_location#34) OR (store_location#34 = )) THEN store_location END, CASE WHEN (isnull(quantity#46) OR (quantity#46 <= 0)) THEN quantity_sold END, CASE WHEN (isnull(price#47) OR (price#47 <= cast(cast(0 as decimal(1,0)) as decimal(14,2)))) THEN unit_price END, CASE WHEN isnull(sales_date#48) THEN transaction_date END) AS invalid_columns#59]
-            +- Project [transaction_id#31, product_name#32, category#33, store_location#34, quantity_sold#35, unit_price#36, transaction_date#37, try_cast(quantity_sold#35 as int) AS quantity#46, CASE WHEN RLIKE(unit_price#36, ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN try_cast(unit_price#36 as decimal(14,2)) END AS price#47, CASE WHEN RLIKE(transaction_date#37, ^[0-9]{4}-[0-9]{2}-[0-9]{2}$) THEN try_cast(transaction_date#37 as date) END AS sales_date#48]
-               +- Project [trim(transaction_id#17, None) AS transaction_id#31, trim(product_name#18, None) AS product_name#32, trim(category#19, None) AS category#33, trim(store_location#20, None) AS store_location#34, trim(quantity_sold#21, None) AS quantity_sold#35, trim(unit_price#22, None) AS unit_price#36, trim(transaction_date#23, None) AS transaction_date#37]
-                  +- Relation [transaction_id#17,product_name#18,category#19,store_location#20,quantity_sold#21,unit_price#22,transaction_date#23] csv
+Sort [revenue#226 DESC NULLS LAST, category#35 ASC NULLS FIRST], true
++- Aggregate [category#35], [category#35, sum(total_sales#110) AS revenue#226]
+   +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity#50, price#60, sales_date#71, cost#83, (cast(quantity#50 as decimal(10,0)) * price#60) AS total_sales#110]
+      +- Filter (invalid_columns#96 = )
+         +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity_sold#37, unit_price#38, transaction_date#39, unit_cost#40, quantity#50, price#60, sales_date#71, cost#83, concat_ws(, , CASE WHEN (isnull(transaction_id#33) OR (transaction_id#33 = )) THEN transaction_id END, CASE WHEN (isnull(product_name#34) OR (product_name#34 = )) THEN product_name END, CASE WHEN (isnull(category#35) OR (category#35 = )) THEN category END, CASE WHEN (isnull(store_location#36) OR (store_location#36 = )) THEN store_location END, CASE WHEN (isnull(quantity#50) OR (quantity#50 <= 0)) THEN quantity_sold END, CASE WHEN (isnull(price#60) OR (price#60 <= cast(cast(0 as decimal(1,0)) as decimal(14,2)))) THEN unit_price END, CASE WHEN isnull(sales_date#71) THEN transaction_date END) AS invalid_columns#96]
+            +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity_sold#37, unit_price#38, transaction_date#39, unit_cost#40, quantity#50, price#60, sales_date#71, CASE WHEN RLIKE(unit_cost#40, ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN try_cast(unit_cost#40 as decimal(14,2)) END AS cost#83]
+               +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity_sold#37, unit_price#38, transaction_date#39, unit_cost#40, quantity#50, price#60, CASE WHEN RLIKE(transaction_date#39, ^[0-9]{4}-[0-9]{2}-[0-9]{2}$) THEN try_cast(transaction_date#39 as date) END AS sales_date#71]
+                  +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity_sold#37, unit_price#38, transaction_date#39, unit_cost#40, quantity#50, CASE WHEN RLIKE(unit_price#38, ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN try_cast(unit_price#38 as decimal(14,2)) END AS price#60]
+                     +- Project [transaction_id#33, product_name#34, category#35, store_location#36, quantity_sold#37, unit_price#38, transaction_date#39, unit_cost#40, try_cast(quantity_sold#37 as int) AS quantity#50]
+                        +- Project [trim(transaction_id#17, None) AS transaction_id#33, trim(product_name#18, None) AS product_name#34, trim(category#19, None) AS category#35, trim(store_location#20, None) AS store_location#36, trim(quantity_sold#21, None) AS quantity_sold#37, trim(unit_price#22, None) AS unit_price#38, trim(transaction_date#23, None) AS transaction_date#39, trim(unit_cost#24, None) AS unit_cost#40]
+                           +- Relation [transaction_id#17,product_name#18,category#19,store_location#20,quantity_sold#21,unit_price#22,transaction_date#23,unit_cost#24] csv
 
 == Optimized Logical Plan ==
-Sort [revenue#177 DESC NULLS LAST, category#33 ASC NULLS FIRST], true
-+- Aggregate [category#33], [category#33, sum(total_sales#71) AS revenue#177]
-   +- Project [category#33, (cast(try_cast(quantity_sold#35 as int) as decimal(10,0)) * CASE WHEN RLIKE(unit_price#36, ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN try_cast(unit_price#36 as decimal(14,2)) END) AS total_sales#71]
-      +- Project [trim(category#19, None) AS category#33, trim(quantity_sold#21, None) AS quantity_sold#35, trim(unit_price#22, None) AS unit_price#36]
+Sort [revenue#226 DESC NULLS LAST, category#35 ASC NULLS FIRST], true
++- Aggregate [category#35], [category#35, sum(total_sales#110) AS revenue#226]
+   +- Project [category#35, (cast(quantity#50 as decimal(10,0)) * CASE WHEN RLIKE(unit_price#38, ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN try_cast(unit_price#38 as decimal(14,2)) END) AS total_sales#110]
+      +- Project [trim(category#19, None) AS category#35, trim(unit_price#22, None) AS unit_price#38, try_cast(trim(quantity_sold#21, None) as int) AS quantity#50]
          +- Filter (concat_ws(, , CASE WHEN (isnull(trim(transaction_id#17, None)) OR (trim(transaction_id#17, None) = )) THEN transaction_id END, CASE WHEN (isnull(trim(product_name#18, None)) OR (trim(product_name#18, None) = )) THEN product_name END, CASE WHEN (isnull(trim(category#19, None)) OR (trim(category#19, None) = )) THEN category END, CASE WHEN (isnull(trim(store_location#20, None)) OR (trim(store_location#20, None) = )) THEN store_location END, CASE WHEN (isnull(try_cast(trim(quantity_sold#21, None) as int)) OR (try_cast(trim(quantity_sold#21, None) as int) <= 0)) THEN quantity_sold END, CASE WHEN (CASE WHEN RLIKE(trim(unit_price#22, None), ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN isnull(try_cast(trim(unit_price#22, None) as decimal(14,2))) ELSE true END OR CASE WHEN RLIKE(trim(unit_price#22, None), ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN (try_cast(trim(unit_price#22, None) as decimal(14,2)) <= 0.00) END) THEN unit_price END, CASE WHEN CASE WHEN RLIKE(trim(transaction_date#23, None), ^[0-9]{4}-[0-9]{2}-[0-9]{2}$) THEN isnull(try_cast(trim(transaction_date#23, None) as date)) ELSE true END THEN transaction_date END) = )
-            +- Relation [transaction_id#17,product_name#18,category#19,store_location#20,quantity_sold#21,unit_price#22,transaction_date#23] csv
+            +- Relation [transaction_id#17,product_name#18,category#19,store_location#20,quantity_sold#21,unit_price#22,transaction_date#23,unit_cost#24] csv
 
 == Physical Plan ==
 AdaptiveSparkPlan isFinalPlan=false
-+- Sort [revenue#177 DESC NULLS LAST, category#33 ASC NULLS FIRST], true, 0
-   +- Exchange rangepartitioning(revenue#177 DESC NULLS LAST, category#33 ASC NULLS FIRST, 4), ENSURE_REQUIREMENTS, [plan_id=95]
-      +- HashAggregate(keys=[category#33], functions=[sum(total_sales#71)], output=[category#33, revenue#177])
-         +- Exchange hashpartitioning(category#33, 4), ENSURE_REQUIREMENTS, [plan_id=92]
-            +- HashAggregate(keys=[category#33], functions=[partial_sum(total_sales#71)], output=[category#33, sum#182, isEmpty#183])
-               +- Project [category#33, (cast(try_cast(quantity_sold#35 as int) as decimal(10,0)) * CASE WHEN RLIKE(unit_price#36, ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN try_cast(unit_price#36 as decimal(14,2)) END) AS total_sales#71]
-                  +- Project [trim(category#19, None) AS category#33, trim(quantity_sold#21, None) AS quantity_sold#35, trim(unit_price#22, None) AS unit_price#36]
++- Sort [revenue#226 DESC NULLS LAST, category#35 ASC NULLS FIRST], true, 0
+   +- Exchange rangepartitioning(revenue#226 DESC NULLS LAST, category#35 ASC NULLS FIRST, 4), ENSURE_REQUIREMENTS, [plan_id=95]
+      +- HashAggregate(keys=[category#35], functions=[sum(total_sales#110)], output=[category#35, revenue#226])
+         +- Exchange hashpartitioning(category#35, 4), ENSURE_REQUIREMENTS, [plan_id=92]
+            +- HashAggregate(keys=[category#35], functions=[partial_sum(total_sales#110)], output=[category#35, sum#231, isEmpty#232])
+               +- Project [category#35, (cast(quantity#50 as decimal(10,0)) * CASE WHEN RLIKE(unit_price#38, ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN try_cast(unit_price#38 as decimal(14,2)) END) AS total_sales#110]
+                  +- Project [trim(category#19, None) AS category#35, trim(unit_price#22, None) AS unit_price#38, try_cast(trim(quantity_sold#21, None) as int) AS quantity#50]
                      +- Filter (concat_ws(, , CASE WHEN (isnull(trim(transaction_id#17, None)) OR (trim(transaction_id#17, None) = )) THEN transaction_id END, CASE WHEN (isnull(trim(product_name#18, None)) OR (trim(product_name#18, None) = )) THEN product_name END, CASE WHEN (isnull(trim(category#19, None)) OR (trim(category#19, None) = )) THEN category END, CASE WHEN (isnull(trim(store_location#20, None)) OR (trim(store_location#20, None) = )) THEN store_location END, CASE WHEN (isnull(try_cast(trim(quantity_sold#21, None) as int)) OR (try_cast(trim(quantity_sold#21, None) as int) <= 0)) THEN quantity_sold END, CASE WHEN (CASE WHEN RLIKE(trim(unit_price#22, None), ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN isnull(try_cast(trim(unit_price#22, None) as decimal(14,2))) ELSE true END OR CASE WHEN RLIKE(trim(unit_price#22, None), ^[+]?[0-9]+([.][0-9]{1,2})?$) THEN (try_cast(trim(unit_price#22, None) as decimal(14,2)) <= 0.00) END) THEN unit_price END, CASE WHEN CASE WHEN RLIKE(trim(transaction_date#23, None), ^[0-9]{4}-[0-9]{2}-[0-9]{2}$) THEN isnull(try_cast(trim(transaction_date#23, None) as date)) ELSE true END THEN transaction_date END) = )
                         +- FileScan csv [transaction_id#17,product_name#18,category#19,store_location#20,quantity_sold#21,unit_price#22,transaction_date#23] Batched: false, DataFilters: [(concat_ws(, , CASE WHEN (isnull(trim(transaction_id#17, None)) OR (trim(transaction_id#17, None..., Format: CSV, Location: InMemoryFileIndex(1 paths)[file:<project>/assignment-..., PartitionFilters: [], PushedFilters: [], ReadSchema: struct<transaction_id:string,product_name:string,category:string,store_location:string,quantity_s...
 
+Category job count after explain: 0
 
 Revenue by category (INR)
 +-----------+---------+
@@ -132,4 +154,44 @@ Transactions strictly above INR 10,000
 |T002          |Headphones  |Electronics|Bengaluru     |5       |2200.00 |2026-01-03|11000.00   |
 +--------------+------------+-----------+--------------+--------+--------+----------+-----------+
 
+
+Valid sales with missing or invalid unit costs
++--------------+------------+
+|transaction_id|product_name|
++--------------+------------+
++--------------+------------+
+
+
+Profitable products by gross profit (INR, complete costs only)
++------------+------------+
+|product_name|gross_profit|
++------------+------------+
+|Laptop      |14000.00    |
+|Headphones  |10050.00    |
+|Monitor     |8700.00     |
+|Desk        |4700.00     |
+|Office Chair|3900.00     |
+|Pen Pack    |3174.00     |
+|Notebook    |2320.00     |
++------------+------------+
+
+
+RDD lineage for category revenue:
+(1) ShuffledRDD[82] at reduceByKey at SalesAnalysis.scala:96 []
+ +-(1) MapPartitionsRDD[81] at map at SalesAnalysis.scala:96 []
+    |  MapPartitionsRDD[80] at rdd at SalesAnalysis.scala:95 []
+    |  SQLExecutionRDD[79] at rdd at SalesAnalysis.scala:95 []
+    |  MapPartitionsRDD[78] at rdd at SalesAnalysis.scala:95 []
+    |  MapPartitionsRDD[77] at rdd at SalesAnalysis.scala:95 []
+    |  MapPartitionsRDD[76] at rdd at SalesAnalysis.scala:95 []
+    |  FileScanRDD[75] at rdd at SalesAnalysis.scala:95 []
+  Electronics: 175550.00 INR
+  Furniture: 43700.00 INR
+  Stationery: 13790.00 INR
+RDD and DataFrame category revenue match.
+RDD tasks follow object transformations and a reduction across partitions.
+The DataFrame optimizer sees the typed columns and aggregation expressions.
+On a cluster, the driver schedules stage tasks and executors fetch shuffle blocks.
 Spark UI: http://127.0.0.1:4052
+Open Jobs, select Revenue by product category, and expand DAG Visualization.
+Open the associated SQL execution to inspect its physical plan and runtime metrics.

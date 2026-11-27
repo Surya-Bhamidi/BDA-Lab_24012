@@ -1,21 +1,21 @@
-transaction_id,product_name,category,store_location,quantity_sold,unit_price,transaction_date
-T001,Laptop,Electronics,Hyderabad,1,56000,2026-01-03
-T002,Headphones,Electronics,Bengaluru,5,2200,2026-01-03
-T003,Desk,Furniture,Chennai,2,7200,2026-01-04
-T004,Notebook,Stationery,Hyderabad,40,65.50,2026-01-04
-T005,Office Chair,Furniture,Bengaluru,3,4300,2026-01-05
-T006,Pen Pack,Stationery,Chennai,30,120,2026-01-06
-T007,Monitor,Electronics,Hyderabad,2,12800,2026-01-07
-T008,Desk,Furniture,Bengaluru,1,7400,2026-01-08
-T009,Notebook,Stationery,Chennai,25,70,2026-01-08
-T010,Headphones,Electronics,Hyderabad,3,2150,2026-01-09
-T011,Pen Pack,Stationery,Bengaluru,42,115,2026-01-09
-T012,Monitor,Electronics,Chennai,1,12500,2026-01-10
-T013,Notebook,Stationery,Bengaluru,15,66,2026-01-10
-T014,Office Chair,Furniture,Hyderabad,2,4500,2026-01-11
-T015,Laptop,Electronics,Chennai,1,54000,2026-01-11
-T016,Headphones,Electronics,Chennai,4,2500,2026-01-12
-T017,,Electronics,Hyderabad,7,1800,2026-01-13
-T018,Desk,Furniture,Chennai,-1,7000,2026-01-14
-T019,Notebook,Stationery,Bengaluru,5,not-a-price,2026-01-15
-T020,Pen Pack,Stationery,Chennai,8,120,2026-02-30
+transaction_id,product_name,category,store_location,quantity_sold,unit_price,transaction_date,unit_cost
+T001,Laptop,Electronics,Hyderabad,1,56000,2026-01-03,48000
+T002,Headphones,Electronics,Bengaluru,5,2200,2026-01-03,1450
+T003,Desk,Furniture,Chennai,2,7200,2026-01-04,5700
+T004,Notebook,Stationery,Hyderabad,40,65.50,2026-01-04,38
+T005,Office Chair,Furniture,Bengaluru,3,4300,2026-01-05,3600
+T006,Pen Pack,Stationery,Chennai,30,120,2026-01-06,73
+T007,Monitor,Electronics,Hyderabad,2,12800,2026-01-07,9800
+T008,Desk,Furniture,Bengaluru,1,7400,2026-01-08,5700
+T009,Notebook,Stationery,Chennai,25,70,2026-01-08,38
+T010,Headphones,Electronics,Hyderabad,3,2150,2026-01-09,1450
+T011,Pen Pack,Stationery,Bengaluru,42,115,2026-01-09,73
+T012,Monitor,Electronics,Chennai,1,12500,2026-01-10,9800
+T013,Notebook,Stationery,Bengaluru,15,66,2026-01-10,38
+T014,Office Chair,Furniture,Hyderabad,2,4500,2026-01-11,3600
+T015,Laptop,Electronics,Chennai,1,54000,2026-01-11,48000
+T016,Headphones,Electronics,Chennai,4,2500,2026-01-12,1450
+T017,,Electronics,Hyderabad,7,1800,2026-01-13,
+T018,Desk,Furniture,Chennai,-1,7000,2026-01-14,5700
+T019,Notebook,Stationery,Bengaluru,5,not-a-price,2026-01-15,38
+T020,Pen Pack,Stationery,Chennai,8,120,2026-02-30,73

@@ -1,4 +1,4 @@
-case_id,predicted_class,positive_class_score
-EXAMPLE_1,0,0.06716
-EXAMPLE_2,1,0.848798
-EXAMPLE_3,1,0.612978
+case_id,predicted_class,positive_class_score,bmi_used
+EXAMPLE_1,0,0.067249,22.0
+EXAMPLE_2,1,0.85814,38.0
+EXAMPLE_3,1,0.580335,29.0
