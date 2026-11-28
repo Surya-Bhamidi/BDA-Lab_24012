@@ -6,11 +6,25 @@ The training CSV is an 11-column projection of the balanced 2015 CDC Behavioral 
 - [Download the upstream ZIP](https://www.kaggle.com/api/v1/datasets/download/alexteboul/diabetes-health-indicators-dataset)
 - [UCI data dictionary](https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators)
 
+## Run the Scala application
+
+[`DiabetesPipeline.scala`](src/DiabetesPipeline.scala) implements the Spark MLlib workflow in Scala 2.12. [`PrepareDataset.scala`](src/PrepareDataset.scala) recreates the training CSV from the publisher's archive.
+
+From the repository root with Java 17 and the bundled Spark tooling:
+
 ```bash
-python assignment-3/src/diabetes_pipeline.py
+python -m pip install -r requirements.txt
+python assignment-3/run.py train
+python assignment-3/run.py prepare /path/to/upstream.zip --output /path/to/diabetes_brfss_2015.csv
 ```
 
-Run `python assignment-3/src/prepare_dataset.py /path/to/upstream.zip` to regenerate the training CSV from the publisher's archive.
+The Python launcher compiles and starts Scala programs. For a native Scala setup with sbt, Java 17, and Spark 3.5.5 built for Scala 2.12:
+
+```bash
+cd assignment-3
+sbt package
+spark-submit --master 'local[4]' --driver-memory 2g --conf spark.sql.shuffle.partitions=4 --class DiabetesPipeline target/scala-2.12/diabetes-ml_2.12-1.0.0.jar data/diabetes_brfss_2015.csv data/new_patients.csv evidence
+```
 
 ## Pipeline and evaluation
 

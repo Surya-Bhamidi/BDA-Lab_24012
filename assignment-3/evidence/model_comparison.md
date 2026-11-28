@@ -11,10 +11,10 @@ Precision, recall, and F1 refer to label 1 (prediabetes or diabetes).
 
 ## Interpretation
 
-Random Forest was selected for the fictional patient predictions because it had the highest validation F1 (0.7520). F1 is the harmonic mean of precision and recall, so it rewards models that detect positive cases while keeping false positives low.
+Random Forest was selected for the fictional patient predictions because it had the highest validation F1 (0.7520). F1 is the harmonic mean of precision and recall.
 
-Random Forest had the highest test F1 (0.7583). The selected model detected 80.2% of actual positive cases, and 71.9% of its positive predictions were correct. Logistic Regression had the highest test precision (73.3%).
+Random Forest had the highest test F1 (0.7583). The selected model detected 80.2% of actual positives, and 71.9% of its positive predictions were correct. Logistic Regression had the highest test precision (73.3%).
 
-The scores describe performance on this balanced survey dataset.
+These scores describe performance on this balanced survey dataset.
 
 [Metrics and confusion counts](metrics.csv) | [Fictional patient predictions](predictions.csv)

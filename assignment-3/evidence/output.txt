@@ -12,7 +12,7 @@ Data quality (blank or null, invalid):
   DiffWalk: 0, 0
   Age: 0, 0
   Diabetes_binary: 0, 0
-Rows with bad labels are excluded. The fitted pipeline imputes missing features.
+Rows with missing or invalid labels are excluded. Fitted medians fill missing features.
 Train class counts: {0: 22731, 1: 22887}
 Validation class counts: {0: 5500, 1: 5381}
 Test class counts: {0: 7115, 1: 7078}
@@ -21,8 +21,8 @@ Training rows per partition (local[4]):
   Partition 1: 10057 rows
   Partition 2: 10764 rows
   Partition 3: 9946 rows
-On a cluster, executors compute partial training statistics across partitions.
-Spark combines them to update models and aggregates evaluation counts in parallel.
+On a cluster, executors train on partitions and Spark combines partial statistics.
+Partitioned aggregation also computes the evaluation counts.
 Logistic Regression pipeline: Imputer -> VectorAssembler -> StandardScaler -> LogisticRegression
 Logistic Regression validation F1: 0.7461
 Decision Tree pipeline: Imputer -> VectorAssembler -> StandardScaler -> DecisionTreeClassifier
@@ -30,9 +30,6 @@ Decision Tree validation F1: 0.7433
 Random Forest pipeline: Imputer -> VectorAssembler -> StandardScaler -> RandomForestClassifier
 Random Forest validation F1: 0.7520
 Selected by validation F1: Random Forest
-Logistic Regression test metrics: {'accuracy': 0.7431832593532023, 'precision': 0.7331884254856678, 'recall': 0.7625035320712066, 'f1': 0.7475586952004987, 'tn': 5151, 'fp': 1964, 'fn': 1681, 'tp': 5397}
-Decision Tree test metrics: {'accuracy': 0.738673994222504, 'precision': 0.7134710429603346, 'recall': 0.795422435716304, 'f1': 0.7522212572650143, 'tn': 4854, 'fp': 2261, 'fn': 1448, 'tp': 5630}
-Random Forest test metrics: {'accuracy': 0.7449446910448813, 'precision': 0.7188053657301949, 'recall': 0.802486578129415, 'f1': 0.7583444592790387, 'tn': 4893, 'fp': 2222, 'fn': 1398, 'tp': 5680}
 
 # Assignment 3 model comparison
 
@@ -47,11 +44,11 @@ Precision, recall, and F1 refer to label 1 (prediabetes or diabetes).
 
 ## Interpretation
 
-Random Forest was selected for the fictional patient predictions because it had the highest validation F1 (0.7520). F1 is the harmonic mean of precision and recall, so it rewards models that detect positive cases while keeping false positives low.
+Random Forest was selected for the fictional patient predictions because it had the highest validation F1 (0.7520). F1 is the harmonic mean of precision and recall.
 
-Random Forest had the highest test F1 (0.7583). The selected model detected 80.2% of actual positive cases, and 71.9% of its positive predictions were correct. Logistic Regression had the highest test precision (73.3%).
+Random Forest had the highest test F1 (0.7583). The selected model detected 80.2% of actual positives, and 71.9% of its positive predictions were correct. Logistic Regression had the highest test precision (73.3%).
 
-The scores describe performance on this balanced survey dataset.
+These scores describe performance on this balanced survey dataset.
 
 [Metrics and confusion counts](metrics.csv) | [Fictional patient predictions](predictions.csv)
 
@@ -60,6 +57,6 @@ root
  |-- features: vector (nullable = true)
  |-- label: double (nullable = true)
 
-{'case_id': 'EXAMPLE_1', 'predicted_class': 0, 'positive_class_score': 0.067249, 'bmi_used': 22.0}
-{'case_id': 'EXAMPLE_2', 'predicted_class': 1, 'positive_class_score': 0.85814, 'bmi_used': 38.0}
-{'case_id': 'EXAMPLE_3', 'predicted_class': 1, 'positive_class_score': 0.580335, 'bmi_used': 29.0}
+EXAMPLE_1, 0, 0.067249, 22.0
+EXAMPLE_2, 1, 0.85814, 38.0
+EXAMPLE_3, 1, 0.580335, 29.0
