@@ -62,6 +62,49 @@ def write_csv(path, fields, rows):
         writer.writerows(rows)
 
 
+def write_comparison_report(output, scores):
+    selected = next(row for row in scores if row["selected"])
+    highest_test_f1 = max(scores, key=lambda row: float(row["f1"]))
+    highest_precision = max(scores, key=lambda row: float(row["precision"]))
+    test_size = sum(selected[key] for key in ("tn", "fp", "fn", "tp"))
+    lines = [
+        "# Assignment 3 model comparison",
+        "",
+        f"Accuracy, precision, recall, and F1 were measured on the same {test_size:,} held-out rows.",
+        "Precision, recall, and F1 refer to label 1 (prediabetes or diabetes).",
+        "",
+        "| Model | Validation F1 | Accuracy | Precision | Recall | Test F1 |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    columns = ("validation_f1", "accuracy", "precision", "recall", "f1")
+    for row in scores:
+        values = " | ".join(f"{float(row[key]):.4f}" for key in columns)
+        lines.append(f"| {row['model']} | {values} |")
+
+    lines.extend([
+        "",
+        "## Interpretation",
+        "",
+        f"{selected['model']} was selected for the fictional patient predictions because it had "
+        f"the highest validation F1 ({float(selected['validation_f1']):.4f}). "
+        "F1 is the harmonic mean of precision and recall, so it rewards models that "
+        "detect positive cases while keeping false positives low.",
+        "",
+        f"{highest_test_f1['model']} had the highest test F1 ({float(highest_test_f1['f1']):.4f}). "
+        f"The selected model detected {float(selected['recall']):.1%} of actual positive cases, "
+        f"and {float(selected['precision']):.1%} of its positive predictions were correct. "
+        f"{highest_precision['model']} had the highest test precision "
+        f"({float(highest_precision['precision']):.1%}).",
+        "",
+        "The scores describe performance on this balanced survey dataset.",
+        "",
+        "[Metrics and confusion counts](metrics.csv) | [Fictional patient predictions](predictions.csv)",
+    ])
+    report = "\n".join(lines) + "\n"
+    (output / "model_comparison.md").write_text(report, encoding="utf-8")
+    print(f"\n{report}", flush=True)
+
+
 def main(args):
     args.output.mkdir(parents=True, exist_ok=True)
     spark = SparkSession.builder.appName("BDA Assignment 3 - Diabetes MLlib").getOrCreate()
@@ -148,10 +191,7 @@ def main(args):
                               for key, val in measures.items()}})
         write_csv(args.output / "metrics.csv", ("model", "selected", "validation_f1", *METRICS), scores)
 
-        winner = next(row for row in scores if row["selected"])
-        best_precision = max(scores, key=lambda row: float(row["precision"]))
-        print(f"{best} test F1 was {winner['f1']} with recall {winner['recall']}.")
-        print(f"Highest test precision was {best_precision['precision']} ({best_precision['model']}).")
+        write_comparison_report(args.output, scores)
         selected_model = models[best]
         print("MLlib test input schema:")
         selected_model.transform(test).select("features", "label").printSchema()

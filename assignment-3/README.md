@@ -18,12 +18,10 @@ Spark reads the CSV as a DataFrame. Values are cast and checked against each inp
 
 Each classifier has a Spark Pipeline with training-set median imputation, feature assembly, standard deviation scaling, and an estimator. The pipeline compares Logistic Regression, Decision Tree, and Random Forest. Model selection uses positive-class F1 on validation data. All three models are then evaluated on the held-out test split. The app prints the pipeline stages, the MLlib `features` vector and numeric `label` schema, and a short interpretation of the model comparison.
 
-| Classifier | Accuracy | Precision | Recall | F1 |
-| --- | ---: | ---: | ---: | ---: |
-| Logistic Regression | 0.7432 | 0.7332 | 0.7625 | 0.7476 |
-| Decision Tree | 0.7387 | 0.7135 | 0.7954 | 0.7522 |
-| Random Forest | 0.7449 | 0.7188 | 0.8025 | 0.7583 |
+## Results
 
-Random Forest had the best validation F1 (0.7520) and the highest test F1. Logistic Regression had higher positive-class precision. The [complete comparison](evidence/metrics.csv) includes confusion counts. Random Forest scored three [fictional examples](data/new_patients.csv) as classes 0, 1, and 1, including an example with missing BMI. The output records the fitted training median of 29.0 used for that example. See the [prediction scores](evidence/predictions.csv) and [run output](evidence/output.txt). These predictions are classroom demonstrations based on survey labels.
+The run prints and saves a [performance comparison table and interpretation](evidence/model_comparison.md). The [metrics CSV](evidence/metrics.csv) includes full-precision scores and confusion counts.
+
+Random Forest scored three [fictional examples](data/new_patients.csv) as classes 0, 1, and 1, including an example with missing BMI. The output records the fitted training median of 29.0 used for that example. See the [prediction scores](evidence/predictions.csv) and [run output](evidence/output.txt). These predictions are classroom demonstrations based on survey labels.
 
 Spark can distribute CSV reading, transformations, model training, and metric aggregation across partitions. Executors compute local statistics such as imputation summaries, gradient contributions, or split histograms, and Spark combines those statistics before the next algorithm step. The run output shows the training row count in each partition. Only summaries and the three fictional predictions are collected to the driver. [Spark MLlib pipeline guide](https://spark.apache.org/docs/3.5.8/ml-pipeline.html)
